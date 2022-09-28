@@ -268,10 +268,11 @@ Add the following to the Docker/build.sh file in the download_wazuh_app_sources(
 To modify the title:   sed -i "s/title: 'Wazuh'/title: 'Defans SIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
 To modify the label:   sed -i "s/label: 'Wazuh'/label: 'Defans SIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
 
-imagen.png
-
 Generate the package, this will create a custom package in the output folder in the same directory where the script has been executed.
 
+cd ..
+mkdir output
+chmod -R 777 output
 ./generate_wazuh_app.sh -b v4.3.6-7.17.5
 
 At the end you will see a message like this, as this is created in a container, the package is transferred to your machine since a volume is used, you will see the generated package in an output folder
