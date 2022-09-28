@@ -1,4 +1,5 @@
-# Wazuh Kibana App
+# Wazuh Kibana App (Editted By Ali Can Gönüllü, Defans Security)
+# https://groups.google.com/g/wazuh/c/VWPdpXHoIb4
 
 [![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://wazuh.com/community/join-us-on-slack/)
 [![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/wazuh)
@@ -245,3 +246,60 @@ Copyright &copy; 2022 Wazuh, Inc.
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
 Find more information about this on the [LICENSE](LICENSE) file.
+
+# Editor
+To achieve this you must do the following (I will assume that you are using the latest version available: v4.2.1 and 7.10.2)
+
+The file to modify is (public/plugin.ts): 
+- https://github.com/wazuh/wazuh-kibana-app/blob/v4.2.1-7.10.2/public/plugin.ts
+
+Specifically the lines: 
+- https://github.com/wazuh/wazuh-kibana-app/blob/v4.2.1-7.10.2/public/plugin.ts#L38 (plugin name/title)
+- https://github.com/wazuh/wazuh-kibana-app/blob/v4.2.1-7.10.2/public/plugin.ts#L65 (label)
+
+Now:
+
+Download the wazuh-packages repository to generate a new custom app:
+
+<pre>
+git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/wazuhapp && git checkout v4.3.6
+</pre>
+
+Add the following to the Docker/build.sh file in the download_wazuh_app_sources() method (depending on what you want to change):
+<pre>
+To modify the title:   sed -i "s/title: 'Wazuh'/title: 'Defans SIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
+To modify the label:   sed -i "s/label: 'Wazuh'/label: 'Defans SIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
+</pre>
+Generate the package, this will create a custom package in the output folder in the same directory where the script has been executed.
+<pre>
+cd ..
+mkdir output
+chmod -R 777 output
+./generate_wazuh_app.sh -b v4.3.6-7.17.5
+</pre>
+At the end you will see a message like this, as this is created in a container, the package is transferred to your machine since a volume is used, you will see the generated package in an output folder
+
+
+Now we have to stop the Kibana service
+<pre>
+systemctl stop kibana.service
+</pre>
+Uninstall the plugin
+<pre>
+cd /usr/share/kibana
+sudo -u kibana bin/kibana-plugin remove wazuh
+</pre>
+Install the custom plugin (assuming you have copy/move the package to /usr/share/kibana), where wazuh_kibana-4.2.1_7.10.2.zip is the generated package
+<pre>
+cd /usr/share/kibana
+sudo -u kibana /usr/share/kibana/bin/kibana-plugin install http://185.42.175.219/wazuh_kibana-4.3.6_7.17.5.zip
+</pre>
+Clear your browser cache (depends on your browser), now you should be able to see the changes:
+
+The generation of the package is documented in this link:
+- https://documentation.wazuh.com/current/development/packaging/generate-wazuh-kibana-app.html
+
+Another way to build the package is to follow this documentation, modifying the file that I mentioned at the beginning: 
+- https://github.com/wazuh/wazuh-kibana-app/wiki/Develop-new-features
+- https://github.com/wazuh/wazuh-kibana-app/wiki/Build-Wazuh-app-package
+
