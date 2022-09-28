@@ -265,20 +265,17 @@ git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/wazuhapp 
 
 Add the following to the Docker/build.sh file in the download_wazuh_app_sources() method (depending on what you want to change):
 
-To modify the title:     sed -i "s/title: 'Wazuh'/title: 'YourTitle'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
-To modify the label:   sed -i "s/label: 'Wazuh'/label: 'YourLabel'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
+To modify the title:   sed -i "s/title: 'Wazuh'/title: 'Defans SIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
+To modify the label:   sed -i "s/label: 'Wazuh'/label: 'Defans SIEM'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
 
 imagen.png
 
 Generate the package, this will create a custom package in the output folder in the same directory where the script has been executed.
 
-./generate_wazuh_app.sh -b v4.2.1-7.10.2
+./generate_wazuh_app.sh -b v4.3.6-7.17.5
 
 At the end you will see a message like this, as this is created in a container, the package is transferred to your machine since a volume is used, you will see the generated package in an output folder
 
-imagen2.png
-
-imagen4.png
 
 Now we have to stop the Kibana service
 
@@ -292,7 +289,7 @@ sudo -u kibana bin/kibana-plugin remove wazuh
 Install the custom plugin (assuming you have copy/move the package to /usr/share/kibana), where wazuh_kibana-4.2.1_7.10.2.zip is the generated package
 
 cd /usr/share/kibana
-sudo -u kibana bin/kibana-plugin install file:///usr/share/kibana/wazuh_kibana-4.2.1_7.10.2.zip
+sudo -u kibana /usr/share/kibana/bin/kibana-plugin install http://185.42.175.219/wazuh_kibana-4.3.6_7.17.5.zip
 
 Clear your browser cache (depends on your browser), now you should be able to see the changes:
 
