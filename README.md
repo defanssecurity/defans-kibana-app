@@ -246,3 +246,62 @@ Copyright &copy; 2022 Wazuh, Inc.
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
 Find more information about this on the [LICENSE](LICENSE) file.
+
+# Editor
+To achieve this you must do the following (I will assume that you are using the latest version available: v4.2.1 and 7.10.2)
+
+The file to modify is (public/plugin.ts): 
+- https://github.com/wazuh/wazuh-kibana-app/blob/v4.2.1-7.10.2/public/plugin.ts
+
+Specifically the lines: 
+- https://github.com/wazuh/wazuh-kibana-app/blob/v4.2.1-7.10.2/public/plugin.ts#L38 (plugin name/title)
+- https://github.com/wazuh/wazuh-kibana-app/blob/v4.2.1-7.10.2/public/plugin.ts#L65 (label)
+
+Now:
+
+Download the wazuh-packages repository to generate a new custom app:
+
+git clone https://github.com/wazuh/wazuh-packages && cd wazuh-packages/wazuhapp && git checkout v4.2.1
+
+Add the following to the Docker/build.sh file in the download_wazuh_app_sources() method (depending on what you want to change):
+
+To modify the title:     sed -i "s/title: 'Wazuh'/title: 'YourTitle'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
+To modify the label:   sed -i "s/label: 'Wazuh'/label: 'YourLabel'/g" ${kibana_dir}/plugins/wazuh/public/plugin.ts
+
+imagen.png
+
+Generate the package, this will create a custom package in the output folder in the same directory where the script has been executed.
+
+./generate_wazuh_app.sh -b v4.2.1-7.10.2
+
+At the end you will see a message like this, as this is created in a container, the package is transferred to your machine since a volume is used, you will see the generated package in an output folder
+
+imagen2.png
+
+imagen4.png
+
+Now we have to stop the Kibana service
+
+systemctl stop kibana.service
+
+Uninstall the plugin
+
+cd /usr/share/kibana
+sudo -u kibana bin/kibana-plugin remove wazuh
+
+Install the custom plugin (assuming you have copy/move the package to /usr/share/kibana), where wazuh_kibana-4.2.1_7.10.2.zip is the generated package
+
+cd /usr/share/kibana
+sudo -u kibana bin/kibana-plugin install file:///usr/share/kibana/wazuh_kibana-4.2.1_7.10.2.zip
+
+Clear your browser cache (depends on your browser), now you should be able to see the changes:
+
+imagen3.png
+
+The generation of the package is documented in this link:
+- https://documentation.wazuh.com/current/development/packaging/generate-wazuh-kibana-app.html
+
+Another way to build the package is to follow this documentation, modifying the file that I mentioned at the beginning: 
+- https://github.com/wazuh/wazuh-kibana-app/wiki/Develop-new-features
+- https://github.com/wazuh/wazuh-kibana-app/wiki/Build-Wazuh-app-package
+
