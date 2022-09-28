@@ -1,9 +1,9 @@
 {
-  "id": "wazuh",
+  "id": "defans",
   "version": "4.3.8-4309",
   "kibanaVersion": "kibana",
   "configPath": [
-    "wazuh"
+    "defans"
   ],
   "requiredPlugins": [
     "navigation",
