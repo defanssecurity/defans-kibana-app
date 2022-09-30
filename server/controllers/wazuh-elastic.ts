@@ -520,7 +520,7 @@ export class WazuhElasticCtrl {
         (!request.params.tab.includes('overview-') &&
           !request.params.tab.includes('agents-'))
       ) {
-        throw new Error('Missing parameters creating visualizations');
+        throw new Error('Gorsellestirme hatasi');
       }
 
       const tabPrefix = request.params.tab.includes('overview')

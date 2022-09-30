@@ -75,6 +75,7 @@ export class WazuhApiCtrl {
             `wz-token=${token};Path=/;HttpOnly${textSecure}`,
             `wz-user=${username};Path=/;HttpOnly${textSecure}`,
             `wz-api=${idHost};Path=/;HttpOnly`,
+            `defans-lisans=${idHost};Path=/;HttpOnly${textSecure}`,
           ],
         },
         body: { token }
@@ -83,7 +84,7 @@ export class WazuhApiCtrl {
       const errorMessage = ((error.response || {}).data || {}).detail || error.message || error;
       log('wazuh-api:getToken', errorMessage);
       return ErrorResponse(
-        `Error getting the authorization token: ${errorMessage}`,
+        `Doğrulama sifresi getirilemedi: ${errorMessage}`,
         3000,
         500,
         response
@@ -105,7 +106,7 @@ export class WazuhApiCtrl {
       const api = await this.manageHosts.getHostById(id);
       // Check Manage Hosts
       if (!Object.keys(api).length) {
-        throw new Error('Could not find Wazuh API entry on wazuh.yml');
+        throw new Error('wazuh.yml dosyasında herhangi bir yapılandırma bulunamadi');
       }
 
       log('wazuh-api:checkStoredAPI', `${id} exists`, 'debug');
@@ -121,7 +122,7 @@ export class WazuhApiCtrl {
       // Look for socket-related errors
       if (this.checkResponseIsDown(responseManagerInfo)) {
         return ErrorResponse(
-          `ERROR3099 - ${responseManagerInfo.data.detail || 'Wazuh not ready yet'}`,
+          `ERROR3099 - ${responseManagerInfo.data.detail || 'Defans SIEM henuz hazir degil'}`,
           3099,
           500,
           response
@@ -205,7 +206,7 @@ export class WazuhApiCtrl {
       }
 
       // If we have an invalid response from the Wazuh API
-      throw new Error(responseManagerInfo.data.detail || `${api.url}:${api.port} is unreachable`);
+      throw new Error(responseManagerInfo.data.detail || `${api.url}:${api.port} adresi ulasilamaz`);
     } catch (error) {
       if (error.code === 'EPROTO') {
         return response.ok({
@@ -237,7 +238,7 @@ export class WazuhApiCtrl {
 
               if (this.checkResponseIsDown(responseManagerInfo)) {
                 return ErrorResponse(
-                  `ERROR3099 - ${response.data.detail || 'Wazuh not ready yet'}`,
+                  `ERROR3099 - ${response.data.detail || 'Defans SIEM henuz hazir degil'}`,
                   3099,
                   500,
                   response
@@ -266,19 +267,19 @@ export class WazuhApiCtrl {
    */
   validateCheckApiParams(body) {
     if (!('username' in body)) {
-      return 'Missing param: API USERNAME';
+      return 'Bulunamayan parametre: API KULLANICI';
     }
 
     if (!('password' in body) && !('id' in body)) {
-      return 'Missing param: API PASSWORD';
+      return 'Bulunamayan parametre: API SIFRE';
     }
 
     if (!('url' in body)) {
-      return 'Missing param: API URL';
+      return 'Bulunamayan parametre: API URL';
     }
 
     if (!('port' in body)) {
-      return 'Missing param: API PORT';
+      return 'Bulunamayan parametre: API PORT';
     }
 
     if (!body.url.includes('https://') && !body.url.includes('http://')) {
@@ -300,7 +301,7 @@ export class WazuhApiCtrl {
       let apiAvailable = null;
       // const notValid = this.validateCheckApiParams(request.body);
       // if (notValid) return ErrorResponse(notValid, 3003, 500, response);
-      log('wazuh-api:checkAPI', `${request.body.id} is valid`, 'debug');
+      log('wazuh-api:checkAPI', `${request.body.id} dogrulandi`, 'debug');
       // Check if a Wazuh API id is given (already stored API)
       const data = await this.manageHosts.getHostById(request.body.id);
       if (data) {
@@ -323,14 +324,14 @@ export class WazuhApiCtrl {
         );
       }catch(error){
         return ErrorResponse(
-          `ERROR3099 - ${error.response?.data?.detail || 'Wazuh not ready yet'}`,
+          `ERROR3099 - ${error.response?.data?.detail || 'Defans SIEM henuz hazir degil'}`,
           3099,
           500,
           response
         );
       }
 
-      log('wazuh-api:checkAPI', `${request.body.id} credentials are valid`, 'debug');
+      log('wazuh-api:checkAPI', `${request.body.id} kimlik bilgisi dogrulandi`, 'debug');
       if (responseManagerInfo.status === 200 && responseManagerInfo.data) {
         let responseAgents = await context.wazuh.api.client.asInternalUser.request(
           'GET',
@@ -379,7 +380,7 @@ export class WazuhApiCtrl {
           );
 
           if (responseCluster.status === 200) {
-            log('wazuh-api:checkStoredAPI', `Wazuh API response is valid`, 'debug');
+            log('wazuh-api:checkStoredAPI', `Defans SIEM dogrulamasi basarili`, 'debug');
             if (responseCluster.data.data.enabled === 'yes') {
               // If cluster mode is active
               let responseClusterLocal = await context.wazuh.api.client.asInternalUser.request(
@@ -419,7 +420,7 @@ export class WazuhApiCtrl {
 
       if (error && error.response && error.response.status === 401) {
         return ErrorResponse(
-          `Unathorized. Please check API credentials. ${error.response.data.message}`,
+          `Dogrulanamadi. API kimlik bilgilerini kontrol edin. ${error.response.data.message}`,
           401,
           401,
           response
@@ -435,7 +436,7 @@ export class WazuhApiCtrl {
       }
       if (error.code === 'EPROTO') {
         return ErrorResponse(
-          'Wrong protocol being used to connect to the Wazuh API',
+          'Defans SIEM baglantisi için yanlis protokol',
           3005,
           500,
           response
@@ -452,7 +453,7 @@ export class WazuhApiCtrl {
       const status = (response.data || {}).status || 1
       const isDown = socketErrorCodes.includes(status);
 
-      isDown && log('wazuh-api:makeRequest', 'Wazuh API is online but Wazuh is not ready yet');
+      isDown && log('wazuh-api:makeRequest', 'Defans SIEM aktif fakat Wazuh API hazir degil');
 
       return isDown;
     }
@@ -488,14 +489,14 @@ export class WazuhApiCtrl {
 
       const isValid = execd && modulesd && wazuhdb && clusterd;
 
-      isValid && log('wazuh-api:checkDaemons', `Wazuh is ready`, 'debug');
+      isValid && log('wazuh-api:checkDaemons', `Defans SIEM hazir`, 'debug');
 
       if (path === '/ping') {
         return { isValid };
       }
 
       if (!isValid) {
-        throw new Error('Wazuh not ready yet');
+        throw new Error('Defans SIEM henuz hazir degil');
       }
     } catch (error) {
       log('wazuh-api:checkDaemons', error.message || error);
@@ -548,9 +549,9 @@ export class WazuhApiCtrl {
       }
 
       if (!Object.keys(api).length) {
-        log('wazuh-api:makeRequest', 'Could not get host credentials');
+        log('wazuh-api:makeRequest', 'Host kimlik bilgileri getirilemedi');
         //Can not get credentials from wazuh-hosts
-        return ErrorResponse('Could not get host credentials', 3011, 404, response);
+        return ErrorResponse('Host kimlik bilgileri getirilemedi', 3011, 404, response);
       }
 
       if (!data) {
@@ -588,7 +589,7 @@ export class WazuhApiCtrl {
             try{
               await context.wazuh.api.client.asCurrentUser.request(method, path, data, options);
             }catch(error){
-              log('queue:delayApiRequest',`An error ocurred in the delayed request: "${method} ${path}": ${error.message || error}`);
+              log('queue:delayApiRequest',`Bir hatadan dolayi istek gecikti: "${method} ${path}": ${error.message || error}`);
             };
           }
         });
@@ -604,9 +605,9 @@ export class WazuhApiCtrl {
         } catch (error) {
           const isDown = (error || {}).code === 'ECONNREFUSED';
           if (!isDown) {
-            log('wazuh-api:makeRequest', 'Wazuh API is online but Wazuh is not ready yet');
+            log('wazuh-api:makeRequest', 'Defans SIEM aktif fakat Wazuh API hazir degil');
             return ErrorResponse(
-              `ERROR3099 - ${error.message || 'Wazuh not ready yet'}`,
+              `ERROR3099 - ${error.message || 'Defans SIEM henuz hazir degil'}`,
               3099,
               500,
               response
@@ -635,7 +636,7 @@ export class WazuhApiCtrl {
       const responseIsDown = this.checkResponseIsDown(responseToken);
       if (responseIsDown) {
         return ErrorResponse(
-          `ERROR3099 - ${response.body.message || 'Wazuh not ready yet'}`,
+          `ERROR3099 - ${response.body.message || 'Defans SIEM henuz hazir degil'}`,
           3099,
           500,
           response
@@ -665,7 +666,7 @@ export class WazuhApiCtrl {
       }
       throw responseError && responseBody.detail
         ? { message: responseBody.detail, code: responseError }
-        : new Error('Unexpected error fetching data from the Wazuh API');
+        : new Error('Veriler alinirken Wazuh API uzerinde bilinmeyen bir hata olustu');
     } catch (error) {
       if (error && error.response && error.response.status === 401) {
         return ErrorResponse(
@@ -687,7 +688,7 @@ export class WazuhApiCtrl {
         }
         return ErrorResponse(
           errorMsg.detail || error,
-          error.code ? `Wazuh API error: ${error.code}` : 3013,
+          error.code ? `Defans SIEM error: ${error.code}` : 3013,
           500,
           response
         );
@@ -714,17 +715,17 @@ export class WazuhApiCtrl {
       );
     }
     if (!request.body.method) {
-      return ErrorResponse('Missing param: method', 3015, 400, response);
+      return ErrorResponse('Bulunamayan parametre: method', 3015, 400, response);
     } else if (!request.body.method.match(/^(?:GET|PUT|POST|DELETE)$/)) {
-      log('wazuh-api:makeRequest', 'Request method is not valid.');
+      log('wazuh-api:makeRequest', 'Istek metodu dogrulanamadi.');
       //Method is not a valid HTTP request method
       return ErrorResponse('Request method is not valid.', 3015, 400, response);
     } else if (!request.body.path) {
-      return ErrorResponse('Missing param: path', 3016, 400, response);
+      return ErrorResponse('Bulunamayan parametre: path', 3016, 400, response);
     } else if (!request.body.path.startsWith('/')) {
-      log('wazuh-api:makeRequest', 'Request path is not valid.');
+      log('wazuh-api:makeRequest', 'Istek konumu dogrulanamadi.');
       //Path doesn't start with '/'
-      return ErrorResponse('Request path is not valid.', 3015, 400, response);
+      return ErrorResponse('Istek konumu dogrulanamadi.', 3015, 400, response);
     } else {
 
       return this.makeRequest(
@@ -758,7 +759,7 @@ export class WazuhApiCtrl {
         tmpPath = tmpPath[0] === '/' ? tmpPath.substr(1) : tmpPath;
       }
 
-      if (!tmpPath) throw new Error('An error occurred parsing path field');
+      if (!tmpPath) throw new Error('Dosya islenirken hata olustu');
 
       log('wazuh-api:csv', `Report ${tmpPath}`, 'debug');
       // Real limit, regardless the user query
@@ -867,9 +868,9 @@ export class WazuhApiCtrl {
           body: csv
         });
       } else if (output && output.data && output.data.data && !output.data.data.total_affected_items) {
-        throw new Error('No results');
+        throw new Error('Sonuc yok');
       } else {
-        throw new Error(`An error occurred fetching data from the Wazuh API${output && output.data && output.data.detail ? `: ${output.body.detail}` : ''}`);
+        throw new Error(`API uzerinden veri alinirken hata olustu${output && output.data && output.data.detail ? `: ${output.body.detail}` : ''}`);
       }
     } catch (error) {
       log('wazuh-api:csv', error.message || error);
@@ -898,7 +899,7 @@ export class WazuhApiCtrl {
       if (source.installationDate && source.lastRestart) {
         log(
           'wazuh-api:getTimeStamp',
-          `Installation date: ${source.installationDate}. Last restart: ${source.lastRestart}`,
+          `Yuklenme Tarihi: ${source.installationDate}. Son Yeniden Baslatma: ${source.lastRestart}`,
           'debug'
         );
         return response.ok({
@@ -908,12 +909,12 @@ export class WazuhApiCtrl {
           }
         });
       } else {
-        throw new Error('Could not fetch wazuh-version registry');
+        throw new Error('Defans SIEM versiyonu alinamadi');
       }
     } catch (error) {
       log('wazuh-api:getTimeStamp', error.message || error);
       return ErrorResponse(
-        error.message || 'Could not fetch wazuh-version registry',
+        error.message || 'Defans SIEM versiyonu alinamadi',
         4001,
         500,
         response
@@ -941,7 +942,7 @@ export class WazuhApiCtrl {
     } catch (error) {
       log('wazuh-api:setExtensions', error.message || error);
       return ErrorResponse(
-        error.message || 'Could not set extensions',
+        error.message || 'Eklenti secilemedi',
         4001,
         500,
         response
@@ -969,7 +970,7 @@ export class WazuhApiCtrl {
     } catch (error) {
       log('wazuh-api:getExtensions', error.message || error);
       return ErrorResponse(
-        error.message || 'Could not fetch wazuh-version registry',
+        error.message || 'Defans SIEM versiyonu alinamadi',
         4001,
         500,
         response
@@ -996,7 +997,7 @@ export class WazuhApiCtrl {
     } catch (error) {
       log('wazuh-api:getSetupInfo', error.message || error);
       return ErrorResponse(
-        `Could not get data from wazuh-version registry due to ${error.message || error}`,
+        `Defans SIEM versiyonu alinamadi, nedeni ${error.message || error}`,
         4005,
         500,
         response
@@ -1015,7 +1016,7 @@ export class WazuhApiCtrl {
     try {
       const apiHostID = getCookieValueByName(request.headers.cookie,'wz-api');
       if (!request.params || !apiHostID || !request.params.agent) {
-        throw new Error('Agent ID and API ID are required');
+        throw new Error('Agent ID veya API ID gereklidir');
       }
 
       const { agent } = request.params;

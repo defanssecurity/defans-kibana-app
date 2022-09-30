@@ -11,22 +11,22 @@
  */
 export const WAZUH_MODULES = {
   general: {
-    title: 'Security events',
+    title: 'Güvenlik Olayları',
     description:
       'Browse through your security alerts, identifying issues and threats in your environment.'
   },
   fim: {
-    title: 'Integrity monitoring',
+    title: 'Bütünlük İzleme',
     description:
       'Alerts related to file changes, including permissions, content, ownership and attributes.'
   },
   pm: {
-    title: 'Policy monitoring',
+    title: 'Policy İzleme',
     description:
       'Verify that your systems are configured according to your security policies baseline.'
   },
   vuls: {
-    title: 'Vulnerabilities',
+    title: 'Zafiyetler',
     description:
       'Discover what applications in your environment are affected by well-known vulnerabilities.'
   },
@@ -36,7 +36,7 @@ export const WAZUH_MODULES = {
       'Configuration assessment and automation of compliance monitoring using SCAP checks.'
   },
   audit: {
-    title: 'System auditing',
+    title: 'Sistem Denetimi',
     description:
       'Audit users behavior, monitoring command execution and alerting on access to critical files.'
   },
@@ -96,16 +96,16 @@ export const WAZUH_MODULES = {
       'Security events from the knowledge base of adversary tactics and techniques based on real-world observations'
   },
   syscollector: {
-    title: 'Inventory data',
+    title: 'Envanter Verisi',
     description:
       'Applications, network configuration, open ports and processes running on your monitored systems.'
   },
   stats: {
-    title: 'Stats',
+    title: 'İstatistik',
     description: 'Stats for agent and logcollector'
   },
   configuration: {
-    title: 'Configuration',
+    title: 'Konfigürasyon',
     description:
       'Check the current agent configuration remotely applied by its group.'
   },
@@ -115,11 +115,11 @@ export const WAZUH_MODULES = {
       'Osquery can be used to expose an operating system as a high-performance relational database.'
   },
   sca: {
-    title: 'Security configuration assessment',
+    title: 'Güvenlik Konfigürasyon Değerlendirilmesi',
     description: 'Scan your assets as part of a configuration assessment audit.'
   },
   docker: {
-    title: 'Docker listener',
+    title: 'Docker Dinleyici',
     description:
       'Monitor and collect the activity from Docker containers such as creation, running, starting, stopping or pausing events.'
   },
@@ -129,15 +129,15 @@ export const WAZUH_MODULES = {
       'Monitoring events from audit logs of your GitHub organizations.'
   },
   devTools: {
-    title: 'API console',
+    title: 'API konsolu',
     description: 'Test the Wazuh API endpoints.'
   },
   logtest: {
-    title: 'Test your logs',
+    title: 'Loglarını Test Et',
     description: 'Check your ruleset testing logs.'
   },
   testConfiguration: {
-    title: 'Test your configurations',
+    title: 'Konfigürasyonu Test Et',
     description: 'Check configurations before applying them'
   }
 };
