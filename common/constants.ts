@@ -389,11 +389,11 @@ export const UI_COLOR_AGENT_STATUS = {
 } as const;
 
 export const UI_LABEL_NAME_AGENT_STATUS = {
-  [API_NAME_AGENT_STATUS.ACTIVE]: 'Active',
-  [API_NAME_AGENT_STATUS.DISCONNECTED]: 'Disconnected',
-  [API_NAME_AGENT_STATUS.PENDING]: 'Pending',
-  [API_NAME_AGENT_STATUS.NEVER_CONNECTED]: 'Never connected',
-  default: 'Unknown'
+  [API_NAME_AGENT_STATUS.ACTIVE]: 'Aktif',
+  [API_NAME_AGENT_STATUS.DISCONNECTED]: 'Deaktif',
+  [API_NAME_AGENT_STATUS.PENDING]: 'Bekliyor',
+  [API_NAME_AGENT_STATUS.NEVER_CONNECTED]: 'Bağlanmadı',
+  default: 'Bilinmiyor'
 } as const;
 
 export const UI_ORDER_AGENT_STATUS = [
@@ -404,7 +404,7 @@ export const UI_ORDER_AGENT_STATUS = [
 ];
 
 // Documentation
-export const DOCUMENTATION_WEB_BASE_URL = "https://documentation.wazuh.com";
+export const DOCUMENTATION_WEB_BASE_URL = "https://defanssecurity.com.tr/defans-siem";
 
 // Default Elasticsearch user name context
 export const ELASTIC_NAME = 'elastic';
