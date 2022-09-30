@@ -310,9 +310,9 @@ export enum WAZUH_MENU_SETTINGS_SECTIONS_ID {
 export const AUTHORIZED_AGENTS = 'authorized-agents';
 
 // Wazuh links
-export const WAZUH_LINK_GITHUB = 'https://github.com/wazuh';
-export const WAZUH_LINK_GOOGLE_GROUPS = 'https://groups.google.com/forum/#!forum/wazuh';
-export const WAZUH_LINK_SLACK = 'https://wazuh.com/community/join-us-on-slack';
+export const WAZUH_LINK_GITHUB = 'https://github.com/defanssecurity';
+export const WAZUH_LINK_GOOGLE_GROUPS = 'https://groups.google.com/forum/#!forum/defans';
+export const WAZUH_LINK_SLACK = 'https://defanssecurity.com.tr/slack';
 
 export const HEALTH_CHECK = 'health-check';
 
@@ -355,8 +355,8 @@ export const ASSETS_PUBLIC_URL = '/plugins/wazuh/public/assets/';
 // Reports
 export const REPORTS_LOGO_IMAGE_ASSETS_RELATIVE_PATH = 'images/logo_reports.png';
 export const REPORTS_PRIMARY_COLOR = '#256BD1';
-export const REPORTS_PAGE_FOOTER_TEXT = 'Copyright © 2022 Wazuh, Inc.';
-export const REPORTS_PAGE_HEADER_TEXT = 'info@wazuh.com\nhttps://wazuh.com';
+export const REPORTS_PAGE_FOOTER_TEXT = 'Defans SIEM (based on Wazuh)';
+export const REPORTS_PAGE_HEADER_TEXT = 'info@defanssecurity.com.tr\nhttps://defanssecurity.com.tr';
 
 // Plugin platform
 export const PLUGIN_PLATFORM_NAME = 'Kibana';
